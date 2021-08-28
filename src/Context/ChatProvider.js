@@ -15,8 +15,11 @@ const ChatProvider = (props) => {
 
    const [datos, setDatos] = useState(data)
 
+   const [mensajes,  setMensajes] = useState([])
+
    useEffect(() => {
     detectarUsuario()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [])
 
 
@@ -24,7 +27,8 @@ const ChatProvider = (props) => {
        auth.onAuthStateChanged(user =>{
            if(user){
                setDatos({uid: user.uid, email: user.email, estado: true})
-           }else{
+               cargarMensajes()
+            }else{
                setDatos({uid: null, email: null, estado: false})
            }
        })
@@ -43,9 +47,34 @@ const ChatProvider = (props) => {
        auth.signOut()
    }
 
+   const cargarMensajes = () =>{
+       db.collection('chat').orderBy('fecha')
+            .onSnapshot(query =>{
+                const arrayMensajes = query.docs.map(dev => dev.data())
+                setMensajes(arrayMensajes)
+            })
+   }   
+
+   const agregarMensajes = async(uidFlecha, textoFlecha) =>{
+       try {
+           await db.collection('chat').add({
+               fecha: Date.now(),
+               texto: textoFlecha,
+               uid: uidFlecha
+           })
+       } catch (error) {
+           console.log(error)
+       }
+   }
 
     return (
-        <chatContext.Provider value={{datos, ingresoUsuario, cerrarSesion}}>
+        <chatContext.Provider value={{
+            datos, 
+            ingresoUsuario, 
+            cerrarSesion, 
+            mensajes,
+            agregarMensajes
+        }}>
             {props.children}
         </chatContext.Provider>
     )

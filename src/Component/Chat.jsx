@@ -1,20 +1,48 @@
-import React from 'react'
+import React, {useContext, useRef, useEffect} from 'react'
 import Agg from './Agg'
 
-const Chat = () => {
-    return (
-        <div className="mt-3 px-2 border">
-            <div className="d-flex justify-content-end mb-2">
-                <span className="badge rounded-pill bg-primary">
-                    Mensaje mio
-                </span>
-            </div>
+import {chatContext} from '../Context/ChatProvider'
 
-            <div className="d-flex justify-content-start mb-2">
-                <span className="badge rounded-pill bg-secondary">
-                    Mensaje tuyo
-                </span>
-            </div>
+const Chat = () => {
+
+    const {mensajes, datos} = useContext(chatContext)
+    const mandarPrincipioChat = useRef(null)
+
+    useEffect(() => {
+       mandarPrincipioChat.current.scrollTop = mandarPrincipioChat.current.scrollHeight
+    }, [mensajes])
+
+    return (
+        
+        <div 
+            className="mt-3 px-2"
+            style={
+                {height: '75vh', overflowY: 'scroll'}
+            }
+            ref={mandarPrincipioChat}
+        >
+
+            {
+                mensajes.map((dev, index) =>(
+
+                    datos.uid === dev.uid ? (
+                        <div className="d-flex justify-content-end mb-2" key={index}>
+                            <span className="badge rounded-pill bg-primary">
+                                {dev.texto}
+                            </span>
+                        </div>
+
+                    ) : (
+                        <div className="d-flex justify-content-start mb-2" key={index}>
+                            <span className="badge rounded-pill bg-secondary">
+                                {dev.texto}
+                            </span>
+                        </div>
+                    )
+                ))
+            }
+            
+
 
             <Agg />
         </div>
